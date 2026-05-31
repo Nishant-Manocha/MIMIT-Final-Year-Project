@@ -4,6 +4,7 @@ import type { ComponentType } from "react";
 import {
   BookOpen,
   CalendarDays,
+  ChevronDown,
   Clock,
   FileText,
   Loader2,
@@ -456,16 +457,19 @@ function StudyPlannerPage() {
           </div>
 
           <Field label="Current preparation level" icon={Target}>
-            <select
-              value={level}
-              onChange={(event) => setLevel(event.target.value)}
-              className="w-full rounded-xl border border-border bg-background/60 px-3 py-2 text-sm outline-none focus:border-primary/70"
-            >
-              <option value="beginner">Beginner</option>
-              <option value="basic">Basic concepts done</option>
-              <option value="intermediate">Intermediate</option>
-              <option value="advanced">Advanced but needs testing</option>
-            </select>
+            <div className="relative">
+              <select
+                value={level}
+                onChange={(event) => setLevel(event.target.value)}
+                className="w-full rounded-xl border border-primary/35 bg-background/75 px-4 py-3 pr-11 text-sm font-semibold text-foreground shadow-sm shadow-primary/10 outline-none transition hover:border-primary/60 focus:border-primary/80 focus:ring-2 focus:ring-primary/25"
+              >
+                <option value="beginner">Beginner</option>
+                <option value="basic">Basic concepts done</option>
+                <option value="intermediate">Intermediate</option>
+                <option value="advanced">Advanced but needs testing</option>
+              </select>
+              <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            </div>
           </Field>
 
           <Field label="Anything that can improve your result" icon={BookOpen}>
