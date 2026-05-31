@@ -613,8 +613,9 @@ router.post("/ai/tutor", async (req, res) => {
     }
   }
 
-  const apiKey = process.env.LOVABLE_API_KEY;
-  if (!apiKey) {
+  const gatewayApiKey = process.env.AI_GATEWAY_API_KEY;
+  const gatewayUrl = process.env.AI_GATEWAY_URL;
+  if (!gatewayApiKey || !gatewayUrl) {
     const content = buildLocalTutorResponse(messages, context);
     const followUps = buildLocalFollowUps(latest);
     const chat = await saveTutorChat(req.user._id, chatId, [
@@ -629,14 +630,14 @@ router.post("/ai/tutor", async (req, res) => {
     });
   }
 
-  const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+  const response = await fetch(gatewayUrl, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
+      Authorization: `Bearer ${gatewayApiKey}`,
     },
     body: JSON.stringify({
-      model: "google/gemini-2.5-flash",
+      model: process.env.AI_GATEWAY_MODEL || "google/gemini-2.5-flash",
       messages: [
         {
           role: "system",
@@ -655,11 +656,11 @@ router.post("/ai/tutor", async (req, res) => {
   const followUps = buildLocalFollowUps(latest);
   const chat = await saveTutorChat(req.user._id, chatId, [
     ...messages,
-    { role: "assistant", content, provider: "lovable", followUps },
+    { role: "assistant", content, provider: "ai-gateway", followUps },
   ]);
   res.json({
     chat_id: chat.id,
-    provider: "lovable",
+    provider: "ai-gateway",
     content,
     followUps,
   });
