@@ -12,20 +12,29 @@ dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 5000;
-const clientOrigin = process.env.CLIENT_ORIGIN || "http://localhost:5173";
-const allowedOrigins = clientOrigin
-  .split(",")
+const defaultAllowedOrigins = [
+  "https://mimit-final-year-project.vercel.app",
+  "http://localhost:5173",
+  "http://localhost:8080",
+];
+const clientOrigin = process.env.CLIENT_ORIGIN || "";
+const allowedOrigins = [...defaultAllowedOrigins, ...clientOrigin.split(",")]
   .map((origin) => origin.trim())
   .filter(Boolean);
+
+function isAllowedOrigin(origin) {
+  return (
+    !origin ||
+    allowedOrigins.includes(origin) ||
+    /^https:\/\/[a-z0-9-]+\.vercel\.app$/i.test(origin) ||
+    /^http:\/\/(localhost|127\.0\.0\.1):\d+$/.test(origin)
+  );
+}
 
 app.use(
   cors({
     origin(origin, callback) {
-      if (
-        !origin ||
-        allowedOrigins.includes(origin) ||
-        /^http:\/\/(localhost|127\.0\.0\.1):\d+$/.test(origin)
-      ) {
+      if (isAllowedOrigin(origin)) {
         return callback(null, true);
       }
 
@@ -47,11 +56,7 @@ const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
     origin(origin, callback) {
-      if (
-        !origin ||
-        allowedOrigins.includes(origin) ||
-        /^http:\/\/(localhost|127\.0\.0\.1):\d+$/.test(origin)
-      ) {
+      if (isAllowedOrigin(origin)) {
         return callback(null, true);
       }
 
