@@ -828,6 +828,7 @@ function StudyRoomsPage() {
         openRoom={openRoom}
         openCreate={() => setCreateOpen(true)}
         openJoin={() => setJoinOpen(true)}
+        inCall={Boolean(callMode)}
       />
       <main className="relative flex min-h-0 flex-col overflow-hidden border-r border-border/50 lg:h-dvh">
         {showChatOnly && activeRoom ? (
@@ -1044,6 +1045,7 @@ function RoomSidebar({
   openRoom,
   openCreate,
   openJoin,
+  inCall,
 }: {
   rooms: StudyRoom[];
   activeRoomId: string;
@@ -1051,9 +1053,14 @@ function RoomSidebar({
   openRoom: (room: StudyRoom) => void;
   openCreate: () => void;
   openJoin: () => void;
+  inCall: boolean;
 }) {
   return (
-    <aside className="flex max-h-[34dvh] min-h-0 flex-col overflow-hidden border-b border-border/50 bg-sidebar/60 p-3 lg:h-dvh lg:max-h-none lg:border-b-0 lg:border-r lg:p-4">
+    <aside
+      className={`max-h-[34dvh] min-h-0 flex-col overflow-hidden border-b border-border/50 bg-sidebar/60 p-3 lg:flex lg:h-dvh lg:max-h-none lg:border-b-0 lg:border-r lg:p-4 ${
+        inCall ? "hidden" : "flex"
+      }`}
+    >
       <div className="mb-3 flex items-center gap-2 lg:mb-5">
         <Users className="h-5 w-5 text-secondary" />
         <h1 className="font-display text-xl font-bold">Study Rooms</h1>
@@ -3910,8 +3917,8 @@ function StudyCallPanel({
   ) : null;
 
   return (
-    <section className="relative flex min-h-0 flex-1 flex-col overflow-y-auto bg-card/20 p-3 pb-32 sm:p-5 sm:pb-28">
-      <div className="mb-3">
+    <section className="relative flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain bg-card/20 p-3 sm:p-5">
+      <div className="mb-3 shrink-0">
         <div>
           <div className="font-display text-lg font-bold">
             {mode === "video" ? "Video classroom" : "Voice focus room"}
@@ -3921,8 +3928,8 @@ function StudyCallPanel({
       </div>
 
       {showVideoLayout ? (
-        <div className={`grid flex-1 gap-3 ${activityRail ? "xl:grid-cols-[minmax(0,1fr)_260px]" : ""}`}>
-          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+        <div className={`grid min-h-0 flex-1 gap-3 ${activityRail ? "xl:grid-cols-[minmax(0,1fr)_260px]" : ""}`}>
+          <div className="grid min-w-0 content-start gap-3 md:grid-cols-2 xl:grid-cols-3">
             <div className="relative min-h-[180px] overflow-hidden rounded-2xl border border-primary/40 bg-black shadow-elevated sm:min-h-[230px]">
               {hasVideo && stream ? (
                 <>
@@ -3957,8 +3964,8 @@ function StudyCallPanel({
           {activityRail}
         </div>
       ) : (
-        <div className={`grid flex-1 gap-3 pt-4 ${activityRail ? "xl:grid-cols-[minmax(0,1fr)_260px]" : ""}`}>
-          <div className="grid content-start gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <div className={`grid min-h-0 flex-1 gap-3 pt-2 sm:pt-4 ${activityRail ? "xl:grid-cols-[minmax(0,1fr)_260px]" : ""}`}>
+          <div className="grid min-w-0 content-start gap-3 sm:grid-cols-2 xl:grid-cols-4">
             <VoiceTile name="You" active={micEnabled} />
             {visiblePeers.map((peer) => (
               <VoiceTile key={peer.socketId} name={peer.name} active={Boolean(peer.stream)} />
@@ -3968,7 +3975,7 @@ function StudyCallPanel({
         </div>
       )}
 
-      <div className="absolute bottom-3 left-1/2 flex w-[calc(100%-1.5rem)] max-w-xl -translate-x-1/2 flex-wrap items-center justify-center gap-2 rounded-2xl border border-border bg-background/80 px-3 py-3 shadow-elevated backdrop-blur-md sm:bottom-5 sm:w-auto sm:gap-3 sm:px-4">
+      <div className="sticky bottom-2 z-20 mt-auto flex w-full flex-wrap items-center justify-center gap-2 rounded-2xl border border-border bg-background/90 px-2 py-3 shadow-elevated backdrop-blur-md sm:bottom-4 sm:mx-auto sm:w-auto sm:max-w-xl sm:gap-3 sm:px-4">
         <input
           type="range"
           min={10}
@@ -3976,7 +3983,7 @@ function StudyCallPanel({
           step={5}
           value={minutes}
           onChange={(event) => setMinutes(Number(event.target.value))}
-          className="w-24 accent-primary sm:w-32"
+          className="min-w-24 flex-1 accent-primary sm:w-32 sm:flex-none"
           aria-label="Focus timer minutes"
         />
         <CallControlButton
@@ -4107,9 +4114,9 @@ function CallControlButton({
       onClick={onClick}
       title={label}
       aria-label={label}
-      className={`grid h-12 w-12 place-items-center rounded-full border transition ${classes}`}
+      className={`grid h-11 w-11 shrink-0 place-items-center rounded-full border transition sm:h-12 sm:w-12 ${classes}`}
     >
-      <Icon className="h-5 w-5" />
+      <Icon className="h-[18px] w-[18px] sm:h-5 sm:w-5" />
     </button>
   );
 }
@@ -4144,8 +4151,8 @@ function TileBadge({ name, status }: { name: string; status: string }) {
 
 function VoiceTile({ name, active }: { name: string; active: boolean }) {
   return (
-    <div className="flex items-center gap-3 rounded-2xl border border-border bg-background/35 p-4">
-      <div className="grid h-11 w-11 place-items-center rounded-full bg-primary/15 text-primary">
+    <div className="flex min-w-0 items-center gap-3 rounded-2xl border border-border bg-background/35 p-3 sm:p-4">
+      <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-primary/15 text-primary sm:h-11 sm:w-11">
         <Mic className="h-5 w-5" />
       </div>
       <div className="min-w-0">
